@@ -1,0 +1,26 @@
+/**:
+  ros__parameters:
+    input_cloud_topic: /pc_interpoled
+
+    roi.min_x: 0.3
+    roi.max_x: 50.0
+    roi.min_y: -15.0
+    roi.max_y: 15.0
+    roi.min_z: -2.5
+    roi.max_z: 3.0
+
+    ground.distance_threshold: 0.15
+    ground.max_iterations: 100
+    ground.eps_angle_deg: 15.0
+
+    voxel.leaf_size: 0.08
+
+    clustering.tolerance: 0.35
+    clustering.min_cluster_size: 5
+    clustering.max_cluster_size: 5000
+
+    topics.nonground: /lidar/nonground
+    topics.voxel: /lidar/voxel
+    topics.clusters: /lidar/clusters
+    topics.boxes: /lidar/cluster_boxes
+    topics.objects: /lidar/objects
