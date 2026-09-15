@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
@@ -13,6 +14,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
+#include <std_msgs/msg/header.hpp>
 #include <vision_msgs/msg/detection3_d.hpp>
 #include <vision_msgs/msg/detection3_d_array.hpp>
 #include <visualization_msgs/msg/marker.hpp>
@@ -69,9 +71,12 @@ public:
     euclidean_cluster_ = std::make_unique<EuclideanCluster>(
       cluster_tolerance, cluster_min_size, cluster_max_size);
 
-    nonground_pub_ = create_publisher<sensor_msgs::msg::PointCloud2>(nonground_topic, rclcpp::SensorDataQoS());
-    voxel_pub_ = create_publisher<sensor_msgs::msg::PointCloud2>(voxel_topic, rclcpp::SensorDataQoS());
-    clusters_pub_ = create_publisher<sensor_msgs::msg::PointCloud2>(clusters_topic, rclcpp::SensorDataQoS());
+    nonground_pub_ = create_publisher<sensor_msgs::msg::PointCloud2>(
+      nonground_topic, rclcpp::SensorDataQoS());
+    voxel_pub_ = create_publisher<sensor_msgs::msg::PointCloud2>(
+      voxel_topic, rclcpp::SensorDataQoS());
+    clusters_pub_ = create_publisher<sensor_msgs::msg::PointCloud2>(
+      clusters_topic, rclcpp::SensorDataQoS());
     boxes_pub_ = create_publisher<visualization_msgs::msg::MarkerArray>(boxes_topic, 10);
     objects_pub_ = create_publisher<vision_msgs::msg::Detection3DArray>(objects_topic, 10);
 
@@ -124,7 +129,6 @@ private:
 
     publish_xyz_cloud(nonground, msg->header, nonground_pub_);
     publish_xyz_cloud(voxel, msg->header, voxel_pub_);
-
     publish_clusters_and_boxes(voxel, cluster_indices, msg->header);
 
     RCLCPP_DEBUG(
@@ -139,7 +143,7 @@ private:
     const std_msgs::msg::Header & header)
   {
     pcl::PointCloud<pcl::PointXYZRGB> colored;
-    colored.reserve(cloud->size());
+    colored.points.reserve(cloud->size());
     colored.height = 1;
     colored.is_dense = true;
 
@@ -168,7 +172,7 @@ private:
         point.r = color[0];
         point.g = color[1];
         point.b = color[2];
-        colored.push_back(point);
+        colored.points.push_back(point);
       }
 
       const auto box = BoundingBox::compute(cloud, indices);
@@ -205,7 +209,7 @@ private:
       objects.detections.push_back(std::move(detection));
     }
 
-    colored.width = static_cast<std::uint32_t>(colored.size());
+    colored.width = static_cast<std::uint32_t>(colored.points.size());
 
     sensor_msgs::msg::PointCloud2 cluster_msg;
     pcl::toROSMsg(colored, cluster_msg);

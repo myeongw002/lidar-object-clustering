@@ -10,11 +10,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(vision_msgs REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common filters segmentation search)
+
+add_definitions(${PCL_DEFINITIONS})
 
 add_executable(lidar_clustering_node
   src/lidar_clustering_node.cpp
@@ -30,14 +33,13 @@ target_include_directories(lidar_clustering_node PRIVATE
   ${PCL_INCLUDE_DIRS}
 )
 
-target_compile_definitions(lidar_clustering_node PRIVATE ${PCL_DEFINITIONS})
-
 target_link_libraries(lidar_clustering_node
   ${PCL_LIBRARIES}
 )
 
 ament_target_dependencies(lidar_clustering_node
   rclcpp
+  std_msgs
   sensor_msgs
   visualization_msgs
   vision_msgs
